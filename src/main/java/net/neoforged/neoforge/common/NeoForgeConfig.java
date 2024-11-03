@@ -89,6 +89,8 @@ public class NeoForgeConfig {
 
         public final BooleanValue logUntranslatedConfigurationWarnings;
 
+        public final BooleanValue orderIndependentTransparentRendering;
+
         Client(ModConfigSpec.Builder builder) {
             experimentalForgeLightPipelineEnabled = builder
                     .comment("EXPERIMENTAL: Enable the NeoForge block rendering pipeline - fixes the lighting of custom models.")
@@ -104,6 +106,11 @@ public class NeoForgeConfig {
                     .comment("A config option mainly for developers. Logs out configuration values that do not have translations when running a client in a development environment.")
                     .translation("neoforge.configgui.logUntranslatedConfigurationWarnings")
                     .define("logUntranslatedConfigurationWarnings", true);
+
+            orderIndependentTransparentRendering = builder
+                    .comment("When enabled, NeoForge will use order independent transparency to render transparent blocks. This may improve performance, but may also cause issues with some mods.")
+                    .translation("neoforge.configgui.orderIndependentTransparentRendering")
+                    .define("orderIndependentTransparentRendering", true);
         }
     }
 

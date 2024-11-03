@@ -194,7 +194,9 @@ runTypes {
 }
 
 runs {
-    client { }
+    client {
+        renderDoc.enabled = true
+    }
     server { }
     gameTestServer { }
     gameTestClient { }

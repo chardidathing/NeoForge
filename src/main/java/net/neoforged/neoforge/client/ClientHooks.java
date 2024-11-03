@@ -10,9 +10,9 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
+import com.mojang.blaze3d.shaders.CompiledShader;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Either;
 import java.io.File;
 import java.util.ArrayList;
@@ -58,19 +58,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.FogParameters;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderDefines;
-import net.minecraft.client.renderer.ShaderProgram;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElement;
@@ -108,6 +102,7 @@ import net.minecraft.sounds.Music;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -135,41 +130,7 @@ import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.asm.enumextension.ExtensionInfo;
 import net.neoforged.neoforge.client.entity.animation.json.AnimationTypeManager;
-import net.neoforged.neoforge.client.event.AddSectionGeometryEvent;
-import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
-import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
-import net.neoforged.neoforge.client.event.ClientChatEvent;
-import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
-import net.neoforged.neoforge.client.event.ClientPauseChangeEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerChangeGameTypeEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.GatherEffectScreenTooltipsEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
-import net.neoforged.neoforge.client.event.RegisterSpriteSourceTypesEvent;
-import net.neoforged.neoforge.client.event.RenderArmEvent;
-import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.event.ScreenshotEvent;
-import net.neoforged.neoforge.client.event.SelectMusicEvent;
-import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
-import net.neoforged.neoforge.client.event.ToastAddEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import net.neoforged.neoforge.client.extensions.common.ClientExtensionsManager;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -179,6 +140,9 @@ import net.neoforged.neoforge.client.gui.ClientTooltipComponentManager;
 import net.neoforged.neoforge.client.gui.GuiLayerManager;
 import net.neoforged.neoforge.client.gui.map.MapDecorationRendererManager;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.renderer.INeoForgeGlslPreprocessor;
+import net.neoforged.neoforge.client.renderer.transparency.OITEventHandler;
+import net.neoforged.neoforge.client.renderer.transparency.OITLevelRenderer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.forge.snapshots.ForgeSnapshotsModClient;
@@ -198,6 +162,8 @@ import org.joml.Vector4f;
  * Class for various client-side-only hooks.
  */
 public class ClientHooks {
+    public static final String UNIFORM_OIT_NAME = "oitEnabled";
+    public static final String UNIFORM_OIT_TYPE = "bool";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Marker CLIENTHOOKS = MarkerManager.getMarker("CLIENTHOOKS");
 
@@ -748,6 +714,75 @@ public class ClientHooks {
     public static String onClientSendMessage(String message) {
         ClientChatEvent event = new ClientChatEvent(message);
         return NeoForge.EVENT_BUS.post(event).isCanceled() ? "" : event.getMessage();
+    }
+
+    public static String applyGlslPreprocessors(String shaderSource, CompiledShader.Type type, GlslPreprocessor vanillaProcessor) {
+        final INeoForgeGlslPreprocessor[] preprocessors = getGlslPreprocessorsFor(type, vanillaProcessor);
+
+        for (INeoForgeGlslPreprocessor preprocessor : preprocessors) {
+            shaderSource = String.join("\n", preprocessor.process(shaderSource, type));
+        }
+
+        return shaderSource;
+    }
+
+    private static INeoForgeGlslPreprocessor[] getGlslPreprocessorsFor(CompiledShader.Type type, GlslPreprocessor glslPreprocessor)
+    {
+        //TODO: Consider caching this as it only depends on the type.
+        final RegisterGlslPreprocessorsEvent event = new RegisterGlslPreprocessorsEvent(type);
+        ModLoader.postEvent(event);
+        final List<INeoForgeGlslPreprocessor> preprocessors = new ArrayList<>();
+        preprocessors.add(glslPreprocessor);
+        preprocessors.addAll(event.getPreprocessors());
+        return preprocessors.toArray(new INeoForgeGlslPreprocessor[0]);
+    }
+
+    public static void onLevelRenderingEnd(ProfilerFiller profilerfiller)
+    {
+        OITLevelRenderer.getInstance().endLevelRendering(profilerfiller);
+    }
+
+    public static void onLevelRenderingStart(ProfilerFiller profilerfiller)
+    {
+        OITLevelRenderer.getInstance().startLevelRendering(profilerfiller);
+    }
+
+    public static void renderChunkGeometry(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix)
+    {
+        OITLevelRenderer.getInstance().checkHandlesThenQueueOrRender(renderType, cameraX, cameraY, cameraZ, modelViewMatrix, projectionMatrix);
+    }
+
+    public static void renderParticles(ParticleRenderType particlerendertype, Iterable<Particle> particles, @Nullable Frustum clippingHelper, Camera camera, float partialTickTime)
+    {
+        OITLevelRenderer.getInstance().checkHandlesThenQueueOrRender(particlerendertype, particles, clippingHelper, camera, partialTickTime);
+    }
+
+    public static void renderBuffer(RenderType renderType, MeshData buffer)
+    {
+        OITLevelRenderer.getInstance().checkHandlesThenQueueOrRender(renderType, buffer);
+    }
+
+    public static void onRenderTargetSetup(int width, int height)
+    {
+        ModLoader.postEvent(new RenderTargetEvent.Create(
+                width, height
+        ));
+    }
+
+    public static void onRenderTargetResize(int width, int height)
+    {
+        NeoForge.EVENT_BUS.post(new RenderTargetEvent.Resize(
+                width, height
+        ));
+    }
+
+    public static boolean shouldPerformVertexSortingFor(RenderType renderType)
+    {
+        return !OITLevelRenderer.getInstance().willHandle(renderType) && renderType.sortOnUpload();
+    }
+
+    public static void registerUniforms(CompiledShaderProgram program) {
+        ModLoader.postEvent(new CompiledShaderEvent.RegisterUniforms(program));
     }
 
     @EventBusSubscriber(value = Dist.CLIENT, modid = "neoforge", bus = EventBusSubscriber.Bus.MOD)
