@@ -17,7 +17,7 @@
          this.demo = p_91084_.game.demo;
          this.allowsMultiplayer = !p_91084_.game.disableMultiplayer;
          this.allowsChat = !p_91084_.game.disableChat;
-@@ -488,15 +_,15 @@
+@@ -488,15 +_,16 @@
              LOGGER.error("Couldn't set icon", (Throwable)ioexception);
          }
  
@@ -32,6 +32,7 @@
          this.mainRenderTarget.clear();
          this.resourceManager = new ReloadableResourceManager(PackType.CLIENT_RESOURCES);
 +        net.neoforged.neoforge.client.loading.ClientModLoader.begin(this, this.resourcePackRepository, this.resourceManager);
++        net.neoforged.neoforge.client.ClientHooks.onRenderTargetSetup(this.mainRenderTarget.width, this.mainRenderTarget.height);
          this.resourcePackRepository.reload();
          this.options.loadSelectedResourcePacks(this.resourcePackRepository);
          this.languageManager = new LanguageManager(this.options.languageCode, p_344151_ -> {
@@ -184,7 +185,7 @@
          this.deltaTracker.updatePauseState(this.pause);
          this.deltaTracker.updateFrozenState(!this.isLevelRunningNormally());
          long l = Util.getNanos();
-@@ -1358,10 +_,12 @@
+@@ -1358,10 +_,13 @@
          this.window.setGuiScale((double)i);
          if (this.screen != null) {
              this.screen.resize(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
@@ -193,6 +194,7 @@
  
          RenderTarget rendertarget = this.getMainRenderTarget();
          rendertarget.resize(this.window.getWidth(), this.window.getHeight());
++        net.neoforged.neoforge.client.ClientHooks.onRenderTargetResize(rendertarget.width, rendertarget.height);
 +        if (this.gameRenderer != null)
          this.gameRenderer.resize(this.window.getWidth(), this.window.getHeight());
          this.mouseHandler.setIgnoreFirstMove();

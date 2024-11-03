@@ -16,12 +16,12 @@ public final class OITShaders
     public static final String FRAGMENT_SHADER_PREFIX = """
             layout (location = 0) out vec4 accum;
             layout (location = 1) out float reveal;
+            layout (location = 2) out float bucket;
             """;
 
     public static final String FRAGMENT_SHADER_SUFFIX = """
             float weight(vec4 color, float z) {
-                float depthZ = gl_FragCoord.z;
-                float alphaFactor = max(pow(10, -2), 3000 * pow((1-depthZ), 3));
+                float alphaFactor = max(pow(10, -2), 3000 * pow((1-z), 3));
                 return color.a * alphaFactor;
             }
             
@@ -35,7 +35,10 @@ public final class OITShaders
             
                 vec4 color = %OUT_COLOR%;
             
-                float weight = weight(color, %Z_VALUE%);
+                ivec2 coords = ivec2(gl_FragCoord.xy);
+                float distance = texelFetch(oitDepthTexture, coords, 0).r;
+            
+                float weight = weight(color, gl_FragCoord.z);
             
                 accum = vec4(color.rgb * weight, color.a);
                 reveal = color.a * weight;

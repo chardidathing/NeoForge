@@ -19,6 +19,9 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class OITRenderTarget extends RenderTarget
 {
+
+    private int bucketTextureId;
+
     public OITRenderTarget(int width, int height)
     {
         super(false);
@@ -34,6 +37,7 @@ public class OITRenderTarget extends RenderTarget
         GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, this.frameBufferId);
         GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.colorTextureId, 0);
         GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this.depthBufferId, 0);
+        GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this.bucketTextureId, 0);
         GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Minecraft.getInstance().getMainRenderTarget().getDepthTextureId(), 0); // opaque framebuffer's depth texture
         this.viewWidth = maintarget$dimension.width;
         this.viewHeight = maintarget$dimension.height;
@@ -48,6 +52,7 @@ public class OITRenderTarget extends RenderTarget
         RenderSystem.assertOnRenderThreadOrInit();
         this.colorTextureId = TextureUtil.generateTextureId();
         this.depthBufferId = TextureUtil.generateTextureId();
+        this.bucketTextureId = TextureUtil.generateTextureId();
         AttachmentState maintarget$attachmentstate = AttachmentState.NONE;
 
 
@@ -91,11 +96,26 @@ public class OITRenderTarget extends RenderTarget
         return GlStateManager._getError() != 1285;
     }
 
+    private boolean allocateBucketAttachment(MainTarget.Dimension dimensions) {
+        RenderSystem.assertOnRenderThreadOrInit();
+        GlStateManager._getError();
+        GlStateManager._bindTexture(this.bucketTextureId);
+        GlStateManager._texImage2D(GL_TEXTURE_2D, 0, GL_R8, dimensions.width, dimensions.height, 0, GL_RED, GL_FLOAT, (IntBuffer)null);
+        GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        GlStateManager._texParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GlStateManager._bindTexture(0);
+        return GlStateManager._getError() != 1285;
+    }
+
     enum AttachmentState {
         NONE,
         ACCUMULATOR,
         REVEAL,
-        ACCUMULATOR_REVEAL;
+        ACCUMULATOR_REVEAL,
+        BUCKET,
+        ACCUMULATOR_BUCKET,
+        REVEAL_BUCKET,
+        ACCUMULATOR_REVEAL_BUCKET;
 
         private static final AttachmentState[] VALUES = values();
 

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.common.NeoForgeConfig;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import org.jetbrains.annotations.ApiStatus;
@@ -290,7 +291,8 @@ public final class OITLevelRenderer
                 this.shadowMapTarget != null &&
                 renderType.isTranslucent() &&
                 Minecraft.getInstance().getShaderManager().getProgram(CoreShaders.PARTICLE) != null
-                && Objects.requireNonNull(Minecraft.getInstance().getShaderManager().getProgram(CoreShaders.PARTICLE)).OIT_ENABLE != null;
+                && Minecraft.getInstance().getShaderManager().getProgram(CoreShaders.PARTICLE).OIT_ENABLE != null
+                && Minecraft.getInstance().getShaderManager().getProgram(CoreShaders.PARTICLE).OIT_ENABLE.getLocation() != -1;
     }
 
     /**
@@ -444,6 +446,9 @@ public final class OITLevelRenderer
         }
 
         transparentOITRenderTarget.bindWrite(true);
+
+        shaderInstance.bindSampler(ClientHooks.SAMPLER_OIT_NAME, shadowMapTarget.getDepthTextureId());
+        shaderInstance.apply();
 
         RenderSystem.enableDepthTest();
         glDepthMask(false);

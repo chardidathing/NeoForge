@@ -53,7 +53,7 @@
          return particleprovider == null
              ? null
              : particleprovider.createParticle(p_107396_, this.level, p_107397_, p_107398_, p_107399_, p_107400_, p_107401_, p_107402_);
-@@ -433,17 +_,27 @@
+@@ -433,33 +_,25 @@
          }
      }
  
@@ -74,14 +74,68 @@
 +            if (particlerendertype == ParticleRenderType.NO_RENDER || !renderTypePredicate.test(particlerendertype)) continue;
              Queue<Particle> queue = this.particles.get(particlerendertype);
              if (queue != null && !queue.isEmpty()) {
-                 Tesselator tesselator = Tesselator.getInstance();
-                 BufferBuilder bufferbuilder = particlerendertype.begin(tesselator, this.textureManager);
-                 if (bufferbuilder != null) {
-                     for (Particle particle : queue) {
-+                        if (frustum != null && !frustum.isVisible(particle.getRenderBoundingBox(p_107341_))) continue;
-                         try {
-                             particle.render(bufferbuilder, p_107340_, p_107341_);
-                         } catch (Throwable throwable) {
+-                Tesselator tesselator = Tesselator.getInstance();
+-                BufferBuilder bufferbuilder = particlerendertype.begin(tesselator, this.textureManager);
+-                if (bufferbuilder != null) {
+-                    for (Particle particle : queue) {
+-                        try {
+-                            particle.render(bufferbuilder, p_107340_, p_107341_);
+-                        } catch (Throwable throwable) {
+-                            CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Particle");
+-                            CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being rendered");
+-                            crashreportcategory.setDetail("Particle", particle::toString);
+-                            crashreportcategory.setDetail("Particle Type", particlerendertype::toString);
+-                            throw new ReportedException(crashreport);
+-                        }
+-                    }
+-
+-                    MeshData meshdata = bufferbuilder.build();
+-                    if (meshdata != null) {
+-                        BufferUploader.drawWithShader(meshdata);
+-                    }
+-                }
++                net.neoforged.neoforge.client.ClientHooks.renderParticles(
++                        particlerendertype, queue, frustum, p_107340_, p_107341_
++                );
+             }
+         }
+ 
+@@ -468,6 +_,35 @@
+         p_107339_.turnOffLightLayer();
+     }
+ 
++    public void renderParticlesWithType(final ParticleRenderType particleRenderType, final Iterable<Particle> toRender, @Nullable final net.minecraft.client.renderer.culling.Frustum clippingHelper, Camera p_107340_, float partialTickTime, java.util.function.Consumer<net.minecraft.client.renderer.CompiledShaderProgram> afterSetupAction, java.util.function.Consumer<net.minecraft.client.renderer.CompiledShaderProgram> postRenderAction) {
++        Tesselator tesselator = Tesselator.getInstance();
++        BufferBuilder bufferbuilder = particleRenderType.begin(tesselator, this.textureManager);
++
++        afterSetupAction.accept(RenderSystem.getShader());
++
++        if (bufferbuilder != null) {
++            for (Particle particle : toRender) {
++                if (clippingHelper != null && !clippingHelper.isVisible(particle.getRenderBoundingBox(partialTickTime))) continue;
++                try {
++                    particle.render(bufferbuilder, p_107340_, partialTickTime);
++                } catch (Throwable throwable) {
++                    CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Particle");
++                    CrashReportCategory crashreportcategory = crashreport.addCategory("Particle being rendered");
++                    crashreportcategory.setDetail("Particle", particle::toString);
++                    crashreportcategory.setDetail("Particle Type", particleRenderType::toString);
++                    throw new ReportedException(crashreport);
++                }
++            }
++
++            MeshData meshdata = bufferbuilder.build();
++            if (meshdata != null) {
++                BufferUploader.drawWithShader(meshdata);
++            }
++        }
++
++        postRenderAction.accept(RenderSystem.getShader());
++    }
++
+     public void setLevel(@Nullable ClientLevel p_107343_) {
+         this.level = p_107343_;
+         this.clearParticles();
 @@ -475,7 +_,7 @@
      }
  

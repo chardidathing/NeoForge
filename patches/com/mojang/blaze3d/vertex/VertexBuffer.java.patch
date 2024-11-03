@@ -1,0 +1,39 @@
+--- a/com/mojang/blaze3d/vertex/VertexBuffer.java
++++ b/com/mojang/blaze3d/vertex/VertexBuffer.java
+@@ -36,6 +_,10 @@
+     }
+ 
+     public void upload(MeshData p_350419_) {
++        upload(p_350419_, true);
++    }
++
++    public void upload(MeshData p_350419_, final boolean close) {
+         MeshData meshdata = p_350419_;
+ 
+         label40: {
+@@ -52,7 +_,7 @@
+                 this.indexType = meshdata$drawstate.indexType();
+                 this.mode = meshdata$drawstate.mode();
+             } catch (Throwable throwable1) {
+-                if (p_350419_ != null) {
++                if (p_350419_ != null && close) {
+                     try {
+                         meshdata.close();
+                     } catch (Throwable throwable) {
+@@ -63,14 +_,14 @@
+                 throw throwable1;
+             }
+ 
+-            if (p_350419_ != null) {
++            if (p_350419_ != null && close) {
+                 p_350419_.close();
+             }
+ 
+             return;
+         }
+ 
+-        if (p_350419_ != null) {
++        if (p_350419_ != null && close) {
+             p_350419_.close();
+         }
+     }

@@ -1,5 +1,24 @@
 --- a/net/minecraft/client/renderer/chunk/SectionRenderDispatcher.java
 +++ b/net/minecraft/client/renderer/chunk/SectionRenderDispatcher.java
+@@ -24,6 +_,8 @@
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.stream.Collectors;
+ import javax.annotation.Nullable;
++
++import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
+ import net.minecraft.CrashReport;
+ import net.minecraft.TracingExecutor;
+ import net.minecraft.Util;
+@@ -232,8 +_,7 @@
+         final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.chunkBufferLayers().size());
+         final List<BlockEntity> renderableBlockEntities = Lists.newArrayList();
+         VisibilitySet visibilitySet = new VisibilitySet();
+-        @Nullable
+-        MeshData.SortState transparencyState;
++        Map<RenderType, MeshData.SortState> transparencyState = new Reference2ObjectArrayMap<>();
+ 
+         public boolean hasRenderableLayers() {
+             return !this.hasBlocks.isEmpty();
 @@ -393,9 +_,10 @@
  
          public SectionRenderDispatcher.RenderSection.CompileTask createCompileTask(RenderRegionCache p_295324_) {
@@ -40,3 +59,119 @@
                              }
  
                              SectionRenderDispatcher.TranslucencyPointOfView sectionrenderdispatcher$translucencypointofview = SectionRenderDispatcher.TranslucencyPointOfView.of(
+@@ -512,7 +_,8 @@
+                                 SectionRenderDispatcher.CompiledSection sectionrenderdispatcher$compiledsection = new SectionRenderDispatcher.CompiledSection();
+                                 sectionrenderdispatcher$compiledsection.visibilitySet = sectioncompiler$results.visibilitySet;
+                                 sectionrenderdispatcher$compiledsection.renderableBlockEntities.addAll(sectioncompiler$results.blockEntities);
+-                                sectionrenderdispatcher$compiledsection.transparencyState = sectioncompiler$results.transparencyState;
++                                sectionrenderdispatcher$compiledsection.transparencyState.clear();
++                                sectionrenderdispatcher$compiledsection.transparencyState.putAll(sectioncompiler$results.transparencyState);
+                                 List<CompletableFuture<Void>> list = new ArrayList<>(sectioncompiler$results.renderedLayers.size());
+                                 sectioncompiler$results.renderedLayers.forEach((p_349884_, p_349885_) -> {
+                                     list.add(SectionRenderDispatcher.this.uploadSectionLayer(p_349885_, RenderSection.this.getBuffer(p_349884_)));
+@@ -570,46 +_,73 @@
+                 } else if (this.isCancelled.get()) {
+                     return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+                 } else {
+-                    MeshData.SortState meshdata$sortstate = this.compiledSection.transparencyState;
+-                    if (meshdata$sortstate != null && !this.compiledSection.isEmpty(RenderType.translucent())) {
+-                        VertexSorting vertexsorting = RenderSection.this.createVertexSorting();
+-                        SectionRenderDispatcher.TranslucencyPointOfView sectionrenderdispatcher$translucencypointofview = SectionRenderDispatcher.TranslucencyPointOfView.of(
++                    Map<RenderType, MeshData.SortState> meshdata$sortstate = this.compiledSection.transparencyState;
++                    int count = 0;
++                    for (MeshData.SortState sortState : meshdata$sortstate.values()) {
++                        if (sortState != null) {
++                            count++;
++                        }
++                    }
++                    //noinspection unchecked -> Generic Array Creation.
++                    CompletableFuture<SectionRenderDispatcher.SectionTaskResult>[] futures = new CompletableFuture[count];
++                    int index = 0;
++                    for (Map.Entry<RenderType, MeshData.SortState> entry : meshdata$sortstate.entrySet()) {
++                        if (entry.getValue() != null) {
++                            futures[index++] = this.resortTransparencyFor(p_295160_, entry.getValue());
++                        }
++                    }
++
++                    return CompletableFuture.allOf(futures).thenApply(p_370316_ -> {
++                        for (CompletableFuture<SectionTaskResult> future : futures) {
++                            if (future.join() == SectionTaskResult.CANCELLED) {
++                                return SectionTaskResult.CANCELLED;
++                            }
++                        }
++
++                        return SectionTaskResult.SUCCESSFUL;
++                    });
++                }
++            }
++
++            private CompletableFuture<SectionRenderDispatcher.SectionTaskResult> resortTransparencyFor(SectionBufferBuilderPack p_295160_, @Nullable MeshData.SortState meshdata$sortstate) {
++                if (meshdata$sortstate != null && !this.compiledSection.isEmpty(RenderType.translucent())) {
++                    VertexSorting vertexsorting = RenderSection.this.createVertexSorting();
++                    SectionRenderDispatcher.TranslucencyPointOfView sectionrenderdispatcher$translucencypointofview = SectionRenderDispatcher.TranslucencyPointOfView.of(
+                             SectionRenderDispatcher.this.getCameraPosition(), RenderSection.this.sectionNode
+-                        );
+-                        if (sectionrenderdispatcher$translucencypointofview.equals(RenderSection.this.pointOfView.get())
++                    );
++                    if (sectionrenderdispatcher$translucencypointofview.equals(RenderSection.this.pointOfView.get())
+                             && !sectionrenderdispatcher$translucencypointofview.isAxisAligned()) {
+-                            return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+-                        } else {
+-                            ByteBufferBuilder.Result bytebufferbuilder$result = meshdata$sortstate.buildSortedIndexBuffer(
++                        return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
++                    } else {
++                        ByteBufferBuilder.Result bytebufferbuilder$result = meshdata$sortstate.buildSortedIndexBuffer(
+                                 p_295160_.buffer(RenderType.translucent()), vertexsorting
+-                            );
+-                            if (bytebufferbuilder$result == null) {
+-                                return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+-                            } else if (this.isCancelled.get()) {
+-                                bytebufferbuilder$result.close();
+-                                return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+-                            } else {
+-                                CompletableFuture<SectionRenderDispatcher.SectionTaskResult> completablefuture = SectionRenderDispatcher.this.uploadSectionIndexBuffer(
+-                                        bytebufferbuilder$result, RenderSection.this.getBuffer(RenderType.translucent())
++                        );
++                        if (bytebufferbuilder$result == null) {
++                            return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
++                        } else if (this.isCancelled.get()) {
++                            bytebufferbuilder$result.close();
++                            return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
++                        } else {
++                            CompletableFuture<SectionRenderDispatcher.SectionTaskResult> completablefuture = SectionRenderDispatcher.this.uploadSectionIndexBuffer(
++                                            bytebufferbuilder$result, RenderSection.this.getBuffer(RenderType.translucent())
+                                     )
+                                     .thenApply(p_294714_ -> SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+-                                return completablefuture.handle((p_370317_, p_370318_) -> {
+-                                    if (p_370318_ != null && !(p_370318_ instanceof CancellationException) && !(p_370318_ instanceof InterruptedException)) {
+-                                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(p_370318_, "Rendering section"));
+-                                    }
++                            return completablefuture.handle((p_370317_, p_370318_) -> {
++                                if (p_370318_ != null && !(p_370318_ instanceof CancellationException) && !(p_370318_ instanceof InterruptedException)) {
++                                    Minecraft.getInstance().delayCrash(CrashReport.forThrowable(p_370318_, "Rendering section"));
++                                }
+ 
+-                                    if (this.isCancelled.get()) {
+-                                        return SectionRenderDispatcher.SectionTaskResult.CANCELLED;
+-                                    } else {
+-                                        RenderSection.this.pointOfView.set(sectionrenderdispatcher$translucencypointofview);
+-                                        return SectionRenderDispatcher.SectionTaskResult.SUCCESSFUL;
+-                                    }
+-                                });
+-                            }
++                                if (this.isCancelled.get()) {
++                                    return SectionRenderDispatcher.SectionTaskResult.CANCELLED;
++                                } else {
++                                    RenderSection.this.pointOfView.set(sectionrenderdispatcher$translucencypointofview);
++                                    return SectionRenderDispatcher.SectionTaskResult.SUCCESSFUL;
++                                }
++                            });
+                         }
+-                    } else {
+-                        return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+                     }
++                } else {
++                    return CompletableFuture.completedFuture(SectionRenderDispatcher.SectionTaskResult.CANCELLED);
+                 }
+             }
+ 

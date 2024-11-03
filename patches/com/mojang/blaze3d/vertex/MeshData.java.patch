@@ -1,0 +1,22 @@
+--- a/com/mojang/blaze3d/vertex/MeshData.java
++++ b/com/mojang/blaze3d/vertex/MeshData.java
+@@ -4,6 +_,8 @@
+ import java.nio.ByteBuffer;
+ import java.nio.FloatBuffer;
+ import javax.annotation.Nullable;
++
++import net.minecraft.client.renderer.RenderType;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
+ import org.apache.commons.lang3.mutable.MutableLong;
+@@ -63,8 +_,8 @@
+     }
+ 
+     @Nullable
+-    public MeshData.SortState sortQuads(ByteBufferBuilder p_350540_, VertexSorting p_350720_) {
+-        if (this.drawState.mode() != VertexFormat.Mode.QUADS) {
++    public MeshData.SortState sortQuads(ByteBufferBuilder p_350540_, VertexSorting p_350720_, RenderType renderType) {
++        if (this.drawState.mode() != VertexFormat.Mode.QUADS || !net.neoforged.neoforge.client.ClientHooks.shouldPerformVertexSortingFor(renderType)) {
+             return null;
+         } else {
+             Vector3f[] avector3f = unpackQuadCentroids(this.vertexBuffer.byteBuffer(), this.drawState.vertexCount(), this.drawState.format());

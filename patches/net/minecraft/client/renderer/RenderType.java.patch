@@ -1,5 +1,14 @@
 --- a/net/minecraft/client/renderer/RenderType.java
 +++ b/net/minecraft/client/renderer/RenderType.java
+@@ -21,7 +_,7 @@
+ import net.neoforged.api.distmarker.OnlyIn;
+ 
+ @OnlyIn(Dist.CLIENT)
+-public abstract class RenderType extends RenderStateShard {
++public abstract class RenderType extends RenderStateShard implements net.neoforged.neoforge.client.extensions.IRenderTypeExtension {
+     public static final int MEGABYTE = 1048576;
+     public static final int BIG_BUFFER_SIZE = 4194304;
+     public static final int SMALL_BUFFER_SIZE = 786432;
 @@ -1098,7 +_,7 @@
      }
  
@@ -42,6 +51,18 @@
      }
  
      public static RenderType lightning() {
+@@ -1356,6 +_,11 @@
+         return this.sortOnUpload;
+     }
+ 
++    @Override
++    public RenderType me() {
++        return this;
++    }
++
+     @OnlyIn(Dist.CLIENT)
+     public static final class CompositeRenderType extends RenderType {
+         static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> OUTLINE = Util.memoize(
 @@ -1622,5 +_,17 @@
          public String toString() {
              return this.name;

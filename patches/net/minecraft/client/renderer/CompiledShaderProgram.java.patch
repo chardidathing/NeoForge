@@ -1,0 +1,50 @@
+--- a/net/minecraft/client/renderer/CompiledShaderProgram.java
++++ b/net/minecraft/client/renderer/CompiledShaderProgram.java
+@@ -62,6 +_,8 @@
+     public Uniform GAME_TIME;
+     @Nullable
+     public Uniform MODEL_OFFSET;
++    @Nullable
++    public Uniform OIT_ENABLE;
+ 
+     private CompiledShaderProgram(int p_366621_) {
+         this.programId = p_366621_;
+@@ -112,6 +_,8 @@
+             }
+         }
+ 
++        net.neoforged.neoforge.client.ClientHooks.registerUniforms(this);
++
+         this.MODEL_VIEW_MATRIX = this.getUniform("ModelViewMat");
+         this.PROJECTION_MATRIX = this.getUniform("ProjMat");
+         this.TEXTURE_MATRIX = this.getUniform("TextureMat");
+@@ -127,6 +_,7 @@
+         this.LINE_WIDTH = this.getUniform("LineWidth");
+         this.GAME_TIME = this.getUniform("GameTime");
+         this.MODEL_OFFSET = this.getUniform("ModelOffset");
++        this.OIT_ENABLE = this.getUniform(net.neoforged.neoforge.client.ClientHooks.UNIFORM_OIT_NAME);
+     }
+ 
+     @Override
+@@ -259,6 +_,21 @@
+         }
+ 
+         RenderSystem.setupShaderLights(this);
++    }
++
++    public void registerCustomUniform(Uniform uniform, ShaderProgramConfig.Uniform config) {
++        if (!uniform.getName().equals(config.name())) {
++            throw new IllegalArgumentException("Uniform name mismatch");
++        }
++        uniform.setLocation(Uniform.glGetUniformLocation(this.programId, uniform.getName()));
++        this.uniforms.add(uniform);
++        this.uniformsByName.put(uniform.getName(), uniform);
++        this.uniformConfigs.put(uniform.getName(), config);
++    }
++
++    public void registerSampler(ShaderProgramConfig.Sampler p_366798_) {
++        this.samplers.add(p_366798_);
++        this.samplerLocations.add(Uniform.glGetUniformLocation(this.programId, p_366798_.name()));
+     }
+ 
+     @VisibleForTesting

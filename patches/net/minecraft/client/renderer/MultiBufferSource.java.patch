@@ -1,0 +1,18 @@
+--- a/net/minecraft/client/renderer/MultiBufferSource.java
++++ b/net/minecraft/client/renderer/MultiBufferSource.java
+@@ -91,12 +_,12 @@
+         private void endBatch(RenderType p_350903_, BufferBuilder p_350797_) {
+             MeshData meshdata = p_350797_.build();
+             if (meshdata != null) {
+-                if (p_350903_.sortOnUpload()) {
++                if (net.neoforged.neoforge.client.ClientHooks.shouldPerformVertexSortingFor(p_350903_)) {
+                     ByteBufferBuilder bytebufferbuilder = this.fixedBuffers.getOrDefault(p_350903_, this.sharedBuffer);
+-                    meshdata.sortQuads(bytebufferbuilder, RenderSystem.getProjectionType().vertexSorting());
++                    meshdata.sortQuads(bytebufferbuilder, RenderSystem.getProjectionType().vertexSorting(), p_350903_);
+                 }
+ 
+-                p_350903_.draw(meshdata);
++                net.neoforged.neoforge.client.ClientHooks.renderBuffer(p_350903_, meshdata);
+             }
+ 
+             if (p_350903_.equals(this.lastSharedType)) {

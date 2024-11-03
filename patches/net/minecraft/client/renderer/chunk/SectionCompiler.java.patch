@@ -24,7 +24,7 @@
                  BufferBuilder bufferbuilder1 = this.getOrBeginLayer(map, p_350612_, rendertype2);
                  posestack.pushPose();
                  posestack.translate(
-@@ -79,11 +_,17 @@
+@@ -79,19 +_,22 @@
                      (float)SectionPos.sectionRelative(blockpos2.getY()),
                      (float)SectionPos.sectionRelative(blockpos2.getZ())
                  );
@@ -44,6 +44,15 @@
          for (Entry<RenderType, BufferBuilder> entry : map.entrySet()) {
              RenderType rendertype1 = entry.getKey();
              MeshData meshdata = entry.getValue().build();
+             if (meshdata != null) {
+-                if (rendertype1 == RenderType.translucent()) {
+-                    sectioncompiler$results.transparencyState = meshdata.sortQuads(p_350612_.buffer(RenderType.translucent()), p_350635_);
+-                }
+-
++                sectioncompiler$results.transparencyState.put(rendertype1, meshdata.sortQuads(p_350612_.buffer(rendertype1), p_350635_, rendertype1));
+                 sectioncompiler$results.renderedLayers.put(rendertype1, meshdata);
+             }
+         }
 @@ -115,9 +_,10 @@
      private <E extends BlockEntity> void handleBlockEntity(SectionCompiler.Results p_350754_, E p_350386_) {
          BlockEntityRenderer<E> blockentityrenderer = this.blockEntityRenderer.getRenderer(p_350386_);
@@ -56,3 +65,13 @@
              }
          }
      }
+@@ -128,8 +_,7 @@
+         public final List<BlockEntity> blockEntities = new ArrayList<>();
+         public final Map<RenderType, MeshData> renderedLayers = new Reference2ObjectArrayMap<>();
+         public VisibilitySet visibilitySet = new VisibilitySet();
+-        @Nullable
+-        public MeshData.SortState transparencyState;
++        public Map<RenderType, MeshData.SortState> transparencyState = new Reference2ObjectArrayMap<>();
+ 
+         public void release() {
+             this.renderedLayers.values().forEach(MeshData::close);

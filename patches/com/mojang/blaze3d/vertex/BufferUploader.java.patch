@@ -1,0 +1,39 @@
+--- a/com/mojang/blaze3d/vertex/BufferUploader.java
++++ b/com/mojang/blaze3d/vertex/BufferUploader.java
+@@ -22,20 +_,32 @@
+     }
+ 
+     public static void drawWithShader(MeshData p_350434_) {
++        drawWithShader(p_350434_, true);
++    }
++
++    public static void drawWithShader(MeshData p_350434_, boolean close) {
+         RenderSystem.assertOnRenderThread();
+-        VertexBuffer vertexbuffer = upload(p_350434_);
++        VertexBuffer vertexbuffer = upload(p_350434_, close);
+         vertexbuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+     }
+ 
+     public static void draw(MeshData p_350302_) {
++        draw(p_350302_, true);
++    }
++
++    public static void draw(MeshData p_350302_, boolean close) {
+         RenderSystem.assertOnRenderThread();
+-        VertexBuffer vertexbuffer = upload(p_350302_);
++        VertexBuffer vertexbuffer = upload(p_350302_, close);
+         vertexbuffer.draw();
+     }
+ 
+-    private static VertexBuffer upload(MeshData p_350970_) {
++    public static VertexBuffer upload(MeshData p_350970_) {
++        return upload(p_350970_, true);
++    }
++
++    public static VertexBuffer upload(MeshData p_350970_, boolean close) {
+         VertexBuffer vertexbuffer = bindImmediateBuffer(p_350970_.drawState().format());
+-        vertexbuffer.upload(p_350970_);
++        vertexbuffer.upload(p_350970_, close);
+         return vertexbuffer;
+     }
+ 

@@ -64,6 +64,11 @@ public class OITGlslPreprocessor implements INeoForgeGlslPreprocessor
     private static void injectTransparentRenderUniform(List<String> lines)
     {
         injectUniform(lines, ClientHooks.UNIFORM_OIT_TYPE, ClientHooks.UNIFORM_OIT_NAME);
+        injectSampler2D(lines, ClientHooks.SAMPLER_OIT_NAME);
+    }
+
+    private static void injectSampler2D(final List<String> lines, final String name) {
+        injectUniform(lines, "sampler2D", name);
     }
 
     private static void injectUniform(final List<String> lines, final String type, final String name) {

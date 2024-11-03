@@ -1,5 +1,13 @@
 --- a/net/minecraft/client/renderer/LevelRenderer.java
 +++ b/net/minecraft/client/renderer/LevelRenderer.java
+@@ -467,6 +_,7 @@
+         RenderTargetDescriptor rendertargetdescriptor = new RenderTargetDescriptor(i, j, true);
+         PostChain postchain = this.getTransparencyChain();
+         if (postchain != null) {
++            //TODO: When OIT is enabled these need to be externally managed, since the FG will delete these resources after they are used.
+             this.targets.translucent = framegraphbuilder.createInternal("translucent", rendertargetdescriptor);
+             this.targets.itemEntity = framegraphbuilder.createInternal("item_entity", rendertargetdescriptor);
+             this.targets.particles = framegraphbuilder.createInternal("particles", rendertargetdescriptor);
 @@ -485,7 +_,7 @@
              RenderSystem.clear(16640);
          });
@@ -18,7 +26,7 @@
          CloudStatus cloudstatus = this.minecraft.options.getCloudsType();
          if (cloudstatus != CloudStatus.OFF) {
              float f2 = this.level.effects().getCloudHeight();
-@@ -505,7 +_,7 @@
+@@ -505,13 +_,14 @@
              }
          }
  
@@ -27,6 +35,21 @@
          if (postchain != null) {
              postchain.addToFrame(framegraphbuilder, i, j, this.targets);
          }
+ 
+         this.addLateDebugPass(framegraphbuilder, vec3, fogparameters);
+         profilerfiller.popPush("framegraph");
++        net.neoforged.neoforge.client.ClientHooks.onLevelRenderingStart(profilerfiller);
+         framegraphbuilder.execute(p_361796_, new FrameGraphBuilder.Inspector() {
+             @Override
+             public void beforeExecutePass(String p_363206_) {
+@@ -523,6 +_,7 @@
+                 profilerfiller.pop();
+             }
+         });
++        net.neoforged.neoforge.client.ClientHooks.onLevelRenderingEnd(profilerfiller);
+         this.minecraft.getMainRenderTarget().bindWrite(false);
+         this.visibleEntities.clear();
+         this.targets.clear();
 @@ -576,7 +_,9 @@
              double d2 = vec3.z();
              p_362234_.push("terrain");
@@ -180,6 +203,30 @@
                      if (flag != p_361698_) {
                          return;
                      }
+@@ -984,6 +_,10 @@
+     }
+ 
+     private void renderSectionLayer(RenderType p_294513_, double p_295577_, double p_294761_, double p_294297_, Matrix4f p_294782_, Matrix4f p_324517_) {
++        net.neoforged.neoforge.client.ClientHooks.renderChunkGeometry(p_294513_, p_295577_, p_294761_, p_294297_, p_294782_, p_324517_);
++    }
++
++    public void renderChunkGeometryForLayer(RenderType p_294513_, double p_295577_, double p_294761_, double p_294297_, Matrix4f p_294782_, Matrix4f p_324517_, java.util.function.Consumer<CompiledShaderProgram> afterSetupAction, java.util.function.Consumer<CompiledShaderProgram> postRenderAction) {
+         RenderSystem.assertOnRenderThread();
+         Zone zone = Profiler.get().zone(() -> "render_" + p_294513_.name);
+         zone.addText(p_294513_::toString);
+@@ -1014,8 +_,12 @@
+                         uniform.upload();
+                     }
+ 
++                    afterSetupAction.accept(compiledshaderprogram);
++
+                     vertexbuffer.bind();
+                     vertexbuffer.draw();
++
++                    postRenderAction.accept(compiledshaderprogram);
+                 }
+             }
+ 
 @@ -1026,6 +_,7 @@
              compiledshaderprogram.clear();
              VertexBuffer.unbind();

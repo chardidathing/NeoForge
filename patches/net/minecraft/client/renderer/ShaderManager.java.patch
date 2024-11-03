@@ -1,5 +1,14 @@
 --- a/net/minecraft/client/renderer/ShaderManager.java
 +++ b/net/minecraft/client/renderer/ShaderManager.java
+@@ -90,7 +_,7 @@
+ 
+         try (Reader reader = p_366763_.openAsReader()) {
+             String s = IOUtils.toString(reader);
+-            p_366733_.put(new ShaderManager.ShaderSourceKey(resourcelocation, p_366461_), String.join("", glslpreprocessor.process(s)));
++            p_366733_.put(new ShaderManager.ShaderSourceKey(resourcelocation, p_366461_), net.neoforged.neoforge.client.ClientHooks.applyGlslPreprocessors(s, p_366461_, glslpreprocessor));
+         } catch (IOException ioexception) {
+             LOGGER.error("Failed to load shader source at {}", p_366513_, ioexception);
+         }
 @@ -169,7 +_,7 @@
          ShaderManager.CompilationCache shadermanager$compilationcache = new ShaderManager.CompilationCache(p_366597_);
          Map<ShaderProgram, ShaderManager.CompilationException> map = new HashMap<>();
@@ -9,3 +18,11 @@
              try {
                  shadermanager$compilationcache.programs.put(shaderprogram, Optional.of(shadermanager$compilationcache.compileProgram(shaderprogram)));
              } catch (ShaderManager.CompilationException shadermanager$compilationexception) {
+@@ -220,6 +_,7 @@
+         try (Reader reader = p_366664_.getResourceOrThrow(resourcelocation).openAsReader()) {
+             String s = IOUtils.toString(reader);
+             String s1 = GlslPreprocessor.injectDefines(s, p_366425_);
++            s1 = net.neoforged.neoforge.client.ClientHooks.applyGlslPreprocessors(s1, p_366782_);
+             CompiledShader compiledshader = CompiledShader.compile(p_366827_, p_366782_, s1);
+             this.compilationCache.shaders.put(new ShaderManager.ShaderCompilationKey(p_366827_, p_366782_, p_366425_), compiledshader);
+             compiledshader1 = compiledshader;

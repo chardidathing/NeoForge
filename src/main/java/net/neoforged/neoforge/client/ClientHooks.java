@@ -164,6 +164,7 @@ import org.joml.Vector4f;
 public class ClientHooks {
     public static final String UNIFORM_OIT_NAME = "oitEnabled";
     public static final String UNIFORM_OIT_TYPE = "bool";
+    public static final String SAMPLER_OIT_NAME = "oitDepthTexture";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Marker CLIENTHOOKS = MarkerManager.getMarker("CLIENTHOOKS");
 
@@ -716,7 +717,7 @@ public class ClientHooks {
         return NeoForge.EVENT_BUS.post(event).isCanceled() ? "" : event.getMessage();
     }
 
-    public static String applyGlslPreprocessors(String shaderSource, CompiledShader.Type type, GlslPreprocessor vanillaProcessor) {
+    public static String applyGlslPreprocessors(String shaderSource, CompiledShader.Type type, GlslPreprocessor... vanillaProcessor) {
         final INeoForgeGlslPreprocessor[] preprocessors = getGlslPreprocessorsFor(type, vanillaProcessor);
 
         for (INeoForgeGlslPreprocessor preprocessor : preprocessors) {
@@ -726,13 +727,13 @@ public class ClientHooks {
         return shaderSource;
     }
 
-    private static INeoForgeGlslPreprocessor[] getGlslPreprocessorsFor(CompiledShader.Type type, GlslPreprocessor glslPreprocessor)
+    private static INeoForgeGlslPreprocessor[] getGlslPreprocessorsFor(CompiledShader.Type type, GlslPreprocessor... glslPreprocessor)
     {
         //TODO: Consider caching this as it only depends on the type.
         final RegisterGlslPreprocessorsEvent event = new RegisterGlslPreprocessorsEvent(type);
         ModLoader.postEvent(event);
         final List<INeoForgeGlslPreprocessor> preprocessors = new ArrayList<>();
-        preprocessors.add(glslPreprocessor);
+        preprocessors.addAll(List.of(glslPreprocessor));
         preprocessors.addAll(event.getPreprocessors());
         return preprocessors.toArray(new INeoForgeGlslPreprocessor[0]);
     }

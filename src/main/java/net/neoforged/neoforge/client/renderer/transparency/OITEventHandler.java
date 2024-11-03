@@ -37,7 +37,10 @@ public class OITEventHandler {
         public static void onShaderRegisterUniforms(CompiledShaderEvent.RegisterUniforms event) {
             event.getShader().registerCustomUniform(
                     new Uniform(ClientHooks.UNIFORM_OIT_NAME, 0, 1), //BOOL -> ONCE
-                    new ShaderProgramConfig.Uniform(ClientHooks.UNIFORM_OIT_NAME, "bool", 1, List.of(0.0f, 1f))
+                    new ShaderProgramConfig.Uniform(ClientHooks.UNIFORM_OIT_NAME, ClientHooks.UNIFORM_OIT_TYPE, 1, List.of(0.0f, 1f))
+            );
+            event.getShader().registerSampler(
+                    new ShaderProgramConfig.Sampler(ClientHooks.SAMPLER_OIT_NAME)
             );
         }
 
