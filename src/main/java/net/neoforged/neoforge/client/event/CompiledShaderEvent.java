@@ -1,9 +1,8 @@
 package net.neoforged.neoforge.client.event;
 
-import net.minecraft.client.renderer.CompiledShaderProgram;
-import net.minecraft.client.renderer.ShaderProgram;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.client.renderer.IGraphicsShader;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -12,15 +11,15 @@ import org.jetbrains.annotations.ApiStatus;
 public abstract class CompiledShaderEvent extends Event
 {
 
-    private final CompiledShaderProgram instance;
+    private final IGraphicsShader instance;
 
     @ApiStatus.Internal
-    public CompiledShaderEvent(CompiledShaderProgram instance)
+    public CompiledShaderEvent(IGraphicsShader instance)
     {
         this.instance = instance;
     }
 
-    public CompiledShaderProgram getShader()
+    public IGraphicsShader getShader()
     {
         return instance;
     }
@@ -36,7 +35,7 @@ public abstract class CompiledShaderEvent extends Event
     {
 
         @ApiStatus.Internal
-        public RegisterUniforms(CompiledShaderProgram instance)
+        public RegisterUniforms(IGraphicsShader instance)
         {
             super(instance);
         }

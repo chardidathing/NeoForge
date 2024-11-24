@@ -140,8 +140,8 @@ import net.neoforged.neoforge.client.gui.ClientTooltipComponentManager;
 import net.neoforged.neoforge.client.gui.GuiLayerManager;
 import net.neoforged.neoforge.client.gui.map.MapDecorationRendererManager;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.renderer.IGraphicsShader;
 import net.neoforged.neoforge.client.renderer.INeoForgeGlslPreprocessor;
-import net.neoforged.neoforge.client.renderer.transparency.OITEventHandler;
 import net.neoforged.neoforge.client.renderer.transparency.OITLevelRenderer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
@@ -782,7 +782,7 @@ public class ClientHooks {
         return !OITLevelRenderer.getInstance().willHandle(renderType) && renderType.sortOnUpload();
     }
 
-    public static void registerUniforms(CompiledShaderProgram program) {
+    public static void registerUniforms(IGraphicsShader program) {
         ModLoader.postEvent(new CompiledShaderEvent.RegisterUniforms(program));
     }
 

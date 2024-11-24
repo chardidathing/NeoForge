@@ -2,13 +2,9 @@ package net.neoforged.neoforge.client.renderer.transparency;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.shaders.CompiledShader;
-import com.mojang.blaze3d.shaders.Uniform;
-import net.minecraft.client.renderer.CompiledShaderProgram;
-import net.minecraft.client.renderer.ShaderProgram;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.renderer.INeoForgeGlslPreprocessor;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class OITGlslPreprocessor implements INeoForgeGlslPreprocessor

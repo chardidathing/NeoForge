@@ -3,8 +3,8 @@ package net.neoforged.neoforge.client.extensions;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.MeshData;
-import net.minecraft.client.renderer.CompiledShaderProgram;
 import net.minecraft.client.renderer.RenderType;
+import net.neoforged.neoforge.client.renderer.IGraphicsShader;
 
 import java.util.function.Consumer;
 
@@ -28,7 +28,7 @@ public interface IRenderTypeExtension {
      * @param afterSetupAction The callback invoked after the render state has been set up.
      * @param afterRenderAction The callback invoked after the render state has been cleared.
      */
-    default void doRender(MeshData renderedBuffer, boolean close, Consumer<CompiledShaderProgram> afterSetupAction, Consumer<CompiledShaderProgram> afterRenderAction) {
+    default void doRender(MeshData renderedBuffer, boolean close, Consumer<IGraphicsShader> afterSetupAction, Consumer<IGraphicsShader> afterRenderAction) {
         me().setupRenderState();
         afterSetupAction.accept(RenderSystem.getShader());
         BufferUploader.drawWithShader(renderedBuffer, close);

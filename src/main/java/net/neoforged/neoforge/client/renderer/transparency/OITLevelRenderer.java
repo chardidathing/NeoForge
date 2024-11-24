@@ -14,16 +14,15 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.renderer.IGraphicsShader;
 import net.neoforged.neoforge.common.NeoForgeConfig;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL40;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.mojang.blaze3d.platform.GlStateManager.glBlendFuncSeparate;
 import static org.lwjgl.opengl.GL11.*;
@@ -82,7 +81,7 @@ public final class OITLevelRenderer
      *
      * @return The shader instance.
      */
-    public CompiledShaderProgram getCompositionShader()
+    public IGraphicsShader getCompositionShader()
     {
         return Minecraft.getInstance().getShaderManager().getProgram(COMPOSITION_SHADER_PROGRAM);
     }
@@ -392,7 +391,7 @@ public final class OITLevelRenderer
         profilerfiller.pop();
     }
 
-    public boolean configureUniforms(CompiledShaderProgram shaderInstance, boolean shouldUpload, boolean isOIT) {
+    public boolean configureUniforms(IGraphicsShader shaderInstance, boolean shouldUpload, boolean isOIT) {
         if (shaderInstance.OIT_ENABLE != null) {
             shaderInstance.OIT_ENABLE.set(isOIT ? 1 : 0);
             if (shouldUpload) {
@@ -408,7 +407,7 @@ public final class OITLevelRenderer
      * @param shaderInstance The shader instance to set up.
      * @param shouldUpload Whether the uniform values should be uploaded.
      */
-    private void setupShadowRendering(CompiledShaderProgram shaderInstance, boolean shouldUpload) {
+    private void setupShadowRendering(IGraphicsShader shaderInstance, boolean shouldUpload) {
         if (configureUniforms(shaderInstance, shouldUpload, false)) {
             return;
         }
@@ -426,7 +425,7 @@ public final class OITLevelRenderer
      *
      * @param shaderInstance The shader instance to clean up.
      */
-    private void cleanUpShadowRendering(CompiledShaderProgram shaderInstance) {
+    private void cleanUpShadowRendering(IGraphicsShader shaderInstance) {
         configureUniforms(shaderInstance, true, false);
 
         glDepthMask(true);
@@ -440,7 +439,7 @@ public final class OITLevelRenderer
      * @param shaderInstance The shader instance to set up.
      * @param shouldUpload Whether the uniform values should be uploaded.
      */
-    private void setupTransparentRendering(CompiledShaderProgram shaderInstance, boolean shouldUpload) {
+    private void setupTransparentRendering(IGraphicsShader shaderInstance, boolean shouldUpload) {
         if (configureUniforms(shaderInstance, shouldUpload, true)) {
             return;
         }
@@ -461,7 +460,7 @@ public final class OITLevelRenderer
      *
      * @param shaderInstance The shader instance to clean up.
      */
-    private void cleanUpTransparentRendering(CompiledShaderProgram shaderInstance) {
+    private void cleanUpTransparentRendering(IGraphicsShader shaderInstance) {
         configureUniforms(shaderInstance, true, false);
 
         glDepthMask(true);
