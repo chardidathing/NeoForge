@@ -1,5 +1,17 @@
 --- a/net/minecraft/client/renderer/CompiledShaderProgram.java
 +++ b/net/minecraft/client/renderer/CompiledShaderProgram.java
+@@ -20,9 +_,10 @@
+ import net.neoforged.api.distmarker.OnlyIn;
+ import org.jetbrains.annotations.VisibleForTesting;
+ import org.joml.Matrix4f;
++import org.joml.Vector3f;
+ 
+ @OnlyIn(Dist.CLIENT)
+-public class CompiledShaderProgram implements AutoCloseable {
++public class CompiledShaderProgram implements AutoCloseable, net.neoforged.neoforge.client.renderer.IGraphicsShader {
+     private static final AbstractUniform DUMMY_UNIFORM = new AbstractUniform();
+     private static final int NO_SAMPLER_TEXTURE = -1;
+     private final List<ShaderProgramConfig.Sampler> samplers = new ArrayList<>();
 @@ -62,6 +_,8 @@
      public Uniform GAME_TIME;
      @Nullable
@@ -9,6 +21,14 @@
  
      private CompiledShaderProgram(int p_366621_) {
          this.programId = p_366621_;
+@@ -89,6 +_,7 @@
+         }
+     }
+ 
++    @Override
+     public void setupUniforms(List<ShaderProgramConfig.Uniform> p_366844_, List<ShaderProgramConfig.Sampler> p_366550_) {
+         RenderSystem.assertOnRenderThread();
+ 
 @@ -112,6 +_,8 @@
              }
          }
@@ -26,12 +46,61 @@
      }
  
      @Override
-@@ -259,6 +_,21 @@
-         }
+@@ -135,6 +_,7 @@
+         GlStateManager.glDeleteProgram(this.programId);
+     }
  
++    @Override
+     public void clear() {
+         RenderSystem.assertOnRenderThread();
+         GlStateManager._glUseProgram(0);
+@@ -151,6 +_,7 @@
+         GlStateManager._activeTexture(i);
+     }
+ 
++    @Override
+     public void apply() {
+         RenderSystem.assertOnRenderThread();
+         GlStateManager._glUseProgram(this.programId);
+@@ -175,21 +_,25 @@
+     }
+ 
+     @Nullable
++    @Override
+     public Uniform getUniform(String p_366894_) {
+         RenderSystem.assertOnRenderThread();
+         return this.uniformsByName.get(p_366894_);
+     }
+ 
+     @Nullable
++    @Override
+     public ShaderProgramConfig.Uniform getUniformConfig(String p_381109_) {
+         return this.uniformConfigs.get(p_381109_);
+     }
+ 
++    @Override
+     public AbstractUniform safeGetUniform(String p_366560_) {
+         Uniform uniform = this.getUniform(p_366560_);
+         return (AbstractUniform)(uniform == null ? DUMMY_UNIFORM : uniform);
+     }
+ 
++    @Override
+     public void bindSampler(String p_366802_, int p_366632_) {
+         this.samplerTextures.put(p_366802_, p_366632_);
+     }
+@@ -261,6 +_,31 @@
          RenderSystem.setupShaderLights(this);
+     }
+ 
++    @Override
++    public void setModelOffset(float x, float y, float z) {
++        if (this.MODEL_OFFSET != null) {
++            this.MODEL_OFFSET.set(x, y, z);
++            this.MODEL_OFFSET.upload();
++        }
 +    }
 +
++    @Override
 +    public void registerCustomUniform(Uniform uniform, ShaderProgramConfig.Uniform config) {
 +        if (!uniform.getName().equals(config.name())) {
 +            throw new IllegalArgumentException("Uniform name mismatch");
@@ -42,9 +111,36 @@
 +        this.uniformConfigs.put(uniform.getName(), config);
 +    }
 +
++    @Override
 +    public void registerSampler(ShaderProgramConfig.Sampler p_366798_) {
 +        this.samplers.add(p_366798_);
 +        this.samplerLocations.add(Uniform.glGetUniformLocation(this.programId, p_366798_.name()));
++    }
++
+     @VisibleForTesting
+     public void registerUniform(Uniform p_366436_) {
+         this.uniforms.add(p_366436_);
+@@ -268,7 +_,23 @@
      }
  
      @VisibleForTesting
++    @Override
+     public int getProgramId() {
+         return this.programId;
++    }
++
++    @Override
++    public void setupLights(Vector3f... shaderLightDirections) {
++        if (shaderLightDirections.length != 2) {
++            throw new IllegalArgumentException("Expected 2 light directions, got " + shaderLightDirections.length);
++        }
++
++        if (this.LIGHT0_DIRECTION != null) {
++            this.LIGHT0_DIRECTION.set(shaderLightDirections[0]);
++        }
++
++        if (this.LIGHT1_DIRECTION != null) {
++            this.LIGHT1_DIRECTION.set(shaderLightDirections[1]);
++        }
+     }
+ }

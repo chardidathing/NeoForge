@@ -1,0 +1,23 @@
+--- a/com/mojang/blaze3d/pipeline/RenderTarget.java
++++ b/com/mojang/blaze3d/pipeline/RenderTarget.java
+@@ -9,10 +_,10 @@
+ import com.mojang.blaze3d.vertex.VertexFormat;
+ import java.util.Objects;
+ import net.minecraft.Util;
+-import net.minecraft.client.renderer.CompiledShaderProgram;
+ import net.minecraft.client.renderer.CoreShaders;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ 
+ @OnlyIn(Dist.CLIENT)
+ public abstract class RenderTarget {
+@@ -197,7 +_,7 @@
+         GlStateManager._disableDepthTest();
+         GlStateManager._depthMask(false);
+         GlStateManager._viewport(0, 0, p_83972_, p_83973_);
+-        CompiledShaderProgram compiledshaderprogram = Objects.requireNonNull(RenderSystem.setShader(CoreShaders.BLIT_SCREEN), "Blit shader not loaded");
++        IGraphicsShader compiledshaderprogram = Objects.requireNonNull(RenderSystem.setShader(CoreShaders.BLIT_SCREEN), "Blit shader not loaded");
+         compiledshaderprogram.bindSampler("InSampler", this.colorTextureId);
+         BufferBuilder bufferbuilder = RenderSystem.renderThreadTesselator().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLIT_SCREEN);
+         bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);

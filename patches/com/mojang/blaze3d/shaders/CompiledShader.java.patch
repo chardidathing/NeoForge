@@ -1,0 +1,10 @@
+--- a/com/mojang/blaze3d/shaders/CompiledShader.java
++++ b/com/mojang/blaze3d/shaders/CompiledShader.java
+@@ -56,6 +_,7 @@
+     @OnlyIn(Dist.CLIENT)
+     public static enum Type {
+         VERTEX("vertex", ".vsh", 35633),
++        GEOMETRY("geometry", ".gsh", 36313),
+         FRAGMENT("fragment", ".fsh", 35632);
+ 
+         private static final CompiledShader.Type[] TYPES = values();

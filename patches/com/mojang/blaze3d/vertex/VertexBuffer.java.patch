@@ -1,5 +1,16 @@
 --- a/com/mojang/blaze3d/vertex/VertexBuffer.java
 +++ b/com/mojang/blaze3d/vertex/VertexBuffer.java
+@@ -8,9 +_,9 @@
+ import java.nio.ByteBuffer;
+ import javax.annotation.Nullable;
+ import net.minecraft.client.Minecraft;
+-import net.minecraft.client.renderer.CompiledShaderProgram;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ 
+ @OnlyIn(Dist.CLIENT)
 @@ -36,6 +_,10 @@
      }
  
@@ -37,3 +48,12 @@
              p_350419_.close();
          }
      }
+@@ -177,7 +_,7 @@
+         return rendersystem$autostorageindexbuffer != null ? rendersystem$autostorageindexbuffer.type() : this.indexType;
+     }
+ 
+-    public void drawWithShader(Matrix4f p_254480_, Matrix4f p_254555_, @Nullable CompiledShaderProgram p_366620_) {
++    public void drawWithShader(Matrix4f p_254480_, Matrix4f p_254555_, @Nullable IGraphicsShader p_366620_) {
+         if (p_366620_ != null) {
+             RenderSystem.assertOnRenderThread();
+             p_366620_.setDefaultUniforms(this.mode, p_254480_, p_254555_, Minecraft.getInstance().getWindow());

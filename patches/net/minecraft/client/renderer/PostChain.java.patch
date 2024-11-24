@@ -1,0 +1,19 @@
+--- a/net/minecraft/client/renderer/PostChain.java
++++ b/net/minecraft/client/renderer/PostChain.java
+@@ -23,6 +_,7 @@
+ import net.minecraft.resources.ResourceLocation;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ 
+ @OnlyIn(Dist.CLIENT)
+@@ -61,7 +_,7 @@
+     // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+     private static PostPass createPass(TextureManager p_364641_, ShaderManager p_366893_, PostChainConfig.Pass p_361826_) throws ShaderManager.CompilationException {
+         ResourceLocation resourcelocation = p_361826_.program();
+-        CompiledShaderProgram compiledshaderprogram = p_366893_.getProgramForLoading(
++        IGraphicsShader compiledshaderprogram = p_366893_.getProgramForLoading(
+             new ShaderProgram(resourcelocation, DefaultVertexFormat.POSITION, ShaderDefines.EMPTY)
+         );
+ 

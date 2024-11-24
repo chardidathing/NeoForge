@@ -1,5 +1,13 @@
 --- a/net/minecraft/client/renderer/ShaderManager.java
 +++ b/net/minecraft/client/renderer/ShaderManager.java
+@@ -34,6 +_,7 @@
+ import net.minecraft.util.profiling.ProfilerFiller;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.apache.commons.io.IOUtils;
+ import org.slf4j.Logger;
+ 
 @@ -90,7 +_,7 @@
  
          try (Reader reader = p_366763_.openAsReader()) {
@@ -18,6 +26,15 @@
              try {
                  shadermanager$compilationcache.programs.put(shaderprogram, Optional.of(shadermanager$compilationcache.compileProgram(shaderprogram)));
              } catch (ShaderManager.CompilationException shadermanager$compilationexception) {
+@@ -207,7 +_,7 @@
+                 ShaderDefines shaderdefines = shaderprogramconfig.defines().withOverrides(shaderprogram.defines());
+                 CompiledShader compiledshader = this.preloadShader(p_366778_, shaderprogramconfig.vertex(), CompiledShader.Type.VERTEX, shaderdefines);
+                 CompiledShader compiledshader1 = this.preloadShader(p_366778_, shaderprogramconfig.fragment(), CompiledShader.Type.FRAGMENT, shaderdefines);
+-                CompiledShaderProgram compiledshaderprogram = linkProgram(shaderprogram, shaderprogramconfig, compiledshader, compiledshader1);
++                IGraphicsShader compiledshaderprogram = linkProgram(shaderprogram, shaderprogramconfig, compiledshader, compiledshader1);
+                 this.compilationCache.programs.put(shaderprogram, Optional.of(compiledshaderprogram));
+             }
+         }
 @@ -220,6 +_,7 @@
          try (Reader reader = p_366664_.getResourceOrThrow(resourcelocation).openAsReader()) {
              String s = IOUtils.toString(reader);
@@ -26,3 +43,75 @@
              CompiledShader compiledshader = CompiledShader.compile(p_366827_, p_366782_, s1);
              this.compilationCache.shaders.put(new ShaderManager.ShaderCompilationKey(p_366827_, p_366782_, p_366425_), compiledshader);
              compiledshader1 = compiledshader;
+@@ -229,7 +_,7 @@
+     }
+ 
+     @Nullable
+-    public CompiledShaderProgram getProgram(ShaderProgram p_366726_) {
++    public IGraphicsShader getProgram(ShaderProgram p_366726_) {
+         try {
+             return this.compilationCache.getOrCompileProgram(p_366726_);
+         } catch (ShaderManager.CompilationException shadermanager$compilationexception) {
+@@ -240,8 +_,8 @@
+         }
+     }
+ 
+-    public CompiledShaderProgram getProgramForLoading(ShaderProgram p_371850_) throws ShaderManager.CompilationException {
+-        CompiledShaderProgram compiledshaderprogram = this.compilationCache.getOrCompileProgram(p_371850_);
++    public IGraphicsShader getProgramForLoading(ShaderProgram p_371850_) throws ShaderManager.CompilationException {
++        IGraphicsShader compiledshaderprogram = this.compilationCache.getOrCompileProgram(p_371850_);
+         if (compiledshaderprogram == null) {
+             throw new ShaderManager.CompilationException("Shader '" + p_371850_ + "' could not be found");
+         } else {
+@@ -249,8 +_,8 @@
+         }
+     }
+ 
+-    static CompiledShaderProgram linkProgram(ShaderProgram p_366640_, ShaderProgramConfig p_366864_, CompiledShader p_366716_, CompiledShader p_366871_) throws ShaderManager.CompilationException {
+-        CompiledShaderProgram compiledshaderprogram = CompiledShaderProgram.link(p_366716_, p_366871_, p_366640_.vertexFormat());
++    static IGraphicsShader linkProgram(ShaderProgram p_366640_, ShaderProgramConfig p_366864_, CompiledShader p_366716_, CompiledShader p_366871_) throws ShaderManager.CompilationException {
++        IGraphicsShader compiledshaderprogram = CompiledShaderProgram.link(p_366716_, p_366871_, p_366640_.vertexFormat());
+         compiledshaderprogram.setupUniforms(p_366864_.uniforms(), p_366864_.samplers());
+         return compiledshaderprogram;
+     }
+@@ -275,7 +_,7 @@
+     @OnlyIn(Dist.CLIENT)
+     class CompilationCache implements AutoCloseable {
+         private final ShaderManager.Configs configs;
+-        final Map<ShaderProgram, Optional<CompiledShaderProgram>> programs = new HashMap<>();
++        final Map<ShaderProgram, Optional<IGraphicsShader>> programs = new HashMap<>();
+         final Map<ShaderManager.ShaderCompilationKey, CompiledShader> shaders = new HashMap<>();
+         final Map<ResourceLocation, Optional<PostChain>> postChains = new HashMap<>();
+ 
+@@ -284,18 +_,18 @@
+         }
+ 
+         @Nullable
+-        public CompiledShaderProgram getOrCompileProgram(ShaderProgram p_368706_) throws ShaderManager.CompilationException {
+-            Optional<CompiledShaderProgram> optional = this.programs.get(p_368706_);
++        public IGraphicsShader getOrCompileProgram(ShaderProgram p_368706_) throws ShaderManager.CompilationException {
++            Optional<IGraphicsShader> optional = this.programs.get(p_368706_);
+             if (optional != null) {
+                 return optional.orElse(null);
+             } else {
+-                CompiledShaderProgram compiledshaderprogram = this.compileProgram(p_368706_);
++                IGraphicsShader compiledshaderprogram = this.compileProgram(p_368706_);
+                 this.programs.put(p_368706_, Optional.of(compiledshaderprogram));
+                 return compiledshaderprogram;
+             }
+         }
+ 
+-        CompiledShaderProgram compileProgram(ShaderProgram p_368538_) throws ShaderManager.CompilationException {
++        IGraphicsShader compileProgram(ShaderProgram p_368538_) throws ShaderManager.CompilationException {
+             ShaderProgramConfig shaderprogramconfig = this.configs.programs.get(p_368538_.configId());
+             if (shaderprogramconfig == null) {
+                 throw new ShaderManager.CompilationException("Could not find program with id: " + p_368538_.configId());
+@@ -352,7 +_,7 @@
+         @Override
+         public void close() {
+             RenderSystem.assertOnRenderThread();
+-            this.programs.values().forEach(p_368606_ -> p_368606_.ifPresent(CompiledShaderProgram::close));
++            this.programs.values().forEach(p_368606_ -> p_368606_.ifPresent(IGraphicsShader::close));
+             this.shaders.values().forEach(CompiledShader::close);
+             this.programs.clear();
+             this.shaders.clear();

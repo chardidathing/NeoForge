@@ -1,0 +1,23 @@
+--- a/net/minecraft/client/renderer/CloudRenderer.java
++++ b/net/minecraft/client/renderer/CloudRenderer.java
+@@ -22,6 +_,7 @@
+ import net.minecraft.world.phys.Vec3;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ import org.slf4j.Logger;
+ 
+@@ -183,9 +_,9 @@
+ 
+     private void drawWithRenderType(RenderType p_364343_, Matrix4f p_360330_, Matrix4f p_365300_, float p_363561_, float p_362810_, float p_362901_) {
+         p_364343_.setupRenderState();
+-        CompiledShaderProgram compiledshaderprogram = RenderSystem.getShader();
+-        if (compiledshaderprogram != null && compiledshaderprogram.MODEL_OFFSET != null) {
+-            compiledshaderprogram.MODEL_OFFSET.set(-p_363561_, p_362810_, -p_362901_);
++        IGraphicsShader compiledshaderprogram = RenderSystem.getShader();
++        if (compiledshaderprogram != null) {
++            compiledshaderprogram.setModelOffset(-p_363561_, p_362810_, -p_362901_);
+         }
+ 
+         this.vertexBuffer.drawWithShader(p_360330_, p_365300_, compiledshaderprogram);

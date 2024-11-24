@@ -1,5 +1,13 @@
 --- a/net/minecraft/client/renderer/LevelRenderer.java
 +++ b/net/minecraft/client/renderer/LevelRenderer.java
+@@ -90,6 +_,7 @@
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ import org.joml.Matrix4fStack;
+ import org.joml.Vector4f;
 @@ -467,6 +_,7 @@
          RenderTargetDescriptor rendertargetdescriptor = new RenderTargetDescriptor(i, j, true);
          PostChain postchain = this.getTransparencyChain();
@@ -210,16 +218,45 @@
 +        net.neoforged.neoforge.client.ClientHooks.renderChunkGeometry(p_294513_, p_295577_, p_294761_, p_294297_, p_294782_, p_324517_);
 +    }
 +
-+    public void renderChunkGeometryForLayer(RenderType p_294513_, double p_295577_, double p_294761_, double p_294297_, Matrix4f p_294782_, Matrix4f p_324517_, java.util.function.Consumer<CompiledShaderProgram> afterSetupAction, java.util.function.Consumer<CompiledShaderProgram> postRenderAction) {
++    public void renderChunkGeometryForLayer(RenderType p_294513_, double p_295577_, double p_294761_, double p_294297_, Matrix4f p_294782_, Matrix4f p_324517_, java.util.function.Consumer<IGraphicsShader> afterSetupAction, java.util.function.Consumer<IGraphicsShader> postRenderAction) {
          RenderSystem.assertOnRenderThread();
          Zone zone = Profiler.get().zone(() -> "render_" + p_294513_.name);
          zone.addText(p_294513_::toString);
-@@ -1014,8 +_,12 @@
-                         uniform.upload();
-                     }
+@@ -991,41 +_,40 @@
+         ObjectListIterator<SectionRenderDispatcher.RenderSection> objectlistiterator = this.visibleSections
+             .listIterator(flag ? 0 : this.visibleSections.size());
+         p_294513_.setupRenderState();
+-        CompiledShaderProgram compiledshaderprogram = RenderSystem.getShader();
++        IGraphicsShader compiledshaderprogram = RenderSystem.getShader();
+         if (compiledshaderprogram == null) {
+             p_294513_.clearRenderState();
+             zone.close();
+         } else {
+             compiledshaderprogram.setDefaultUniforms(VertexFormat.Mode.QUADS, p_294782_, p_324517_, this.minecraft.getWindow());
+             compiledshaderprogram.apply();
+-            Uniform uniform = compiledshaderprogram.MODEL_OFFSET;
  
-+                    afterSetupAction.accept(compiledshaderprogram);
+             while (flag ? objectlistiterator.hasNext() : objectlistiterator.hasPrevious()) {
+                 SectionRenderDispatcher.RenderSection sectionrenderdispatcher$rendersection = flag ? objectlistiterator.next() : objectlistiterator.previous();
+                 if (!sectionrenderdispatcher$rendersection.getCompiled().isEmpty(p_294513_)) {
+                     VertexBuffer vertexbuffer = sectionrenderdispatcher$rendersection.getBuffer(p_294513_);
+                     BlockPos blockpos = sectionrenderdispatcher$rendersection.getOrigin();
+-                    if (uniform != null) {
+-                        uniform.set(
+-                            (float)((double)blockpos.getX() - p_295577_),
+-                            (float)((double)blockpos.getY() - p_294761_),
+-                            (float)((double)blockpos.getZ() - p_294297_)
+-                        );
+-                        uniform.upload();
+-                    }
++                    compiledshaderprogram.setModelOffset(
++                        (float)((double)blockpos.getX() - p_295577_),
++                        (float)((double)blockpos.getY() - p_294761_),
++                        (float)((double)blockpos.getZ() - p_294297_)
++                    );
 +
++                    afterSetupAction.accept(compiledshaderprogram);
+ 
                      vertexbuffer.bind();
                      vertexbuffer.draw();
 +
@@ -227,7 +264,11 @@
                  }
              }
  
-@@ -1026,6 +_,7 @@
+-            if (uniform != null) {
+-                uniform.set(0.0F, 0.0F, 0.0F);
+-            }
++            compiledshaderprogram.setModelOffset(0,0,0);
+ 
              compiledshaderprogram.clear();
              VertexBuffer.unbind();
              zone.close();

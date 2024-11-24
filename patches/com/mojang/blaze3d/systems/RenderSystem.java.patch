@@ -1,9 +1,80 @@
 --- a/com/mojang/blaze3d/systems/RenderSystem.java
 +++ b/com/mojang/blaze3d/systems/RenderSystem.java
-@@ -822,4 +_,14 @@
+@@ -25,7 +_,6 @@
+ import javax.annotation.Nullable;
+ import net.minecraft.Util;
+ import net.minecraft.client.Minecraft;
+-import net.minecraft.client.renderer.CompiledShaderProgram;
+ import net.minecraft.client.renderer.FogParameters;
+ import net.minecraft.client.renderer.ShaderProgram;
+ import net.minecraft.client.renderer.texture.AbstractTexture;
+@@ -35,6 +_,7 @@
+ import net.minecraft.util.TimeSource;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ import org.joml.Matrix4fStack;
+ import org.joml.Vector3f;
+@@ -87,7 +_,7 @@
+     private static float shaderLineWidth = 1.0F;
+     private static String apiDescription = "Unknown";
+     @Nullable
+-    private static CompiledShaderProgram shader;
++    private static IGraphicsShader shader;
+     private static final AtomicLong pollEventsWaitStart = new AtomicLong();
+     private static final AtomicBoolean pollingEvents = new AtomicBoolean(false);
+ 
+@@ -370,15 +_,10 @@
+         shaderLightDirections[1] = p_254006_;
+     }
+ 
+-    public static void setupShaderLights(CompiledShaderProgram p_366452_) {
++    public static void setupShaderLights(IGraphicsShader p_366452_) {
+         assertOnRenderThread();
+-        if (p_366452_.LIGHT0_DIRECTION != null) {
+-            p_366452_.LIGHT0_DIRECTION.set(shaderLightDirections[0]);
+-        }
++        p_366452_.setupLights(shaderLightDirections);
+ 
+-        if (p_366452_.LIGHT1_DIRECTION != null) {
+-            p_366452_.LIGHT1_DIRECTION.set(shaderLightDirections[1]);
+-        }
+     }
+ 
+     public static void setShaderColor(float p_157430_, float p_157431_, float p_157432_, float p_157433_) {
+@@ -628,14 +_,14 @@
+     }
+ 
+     @Nullable
+-    public static CompiledShaderProgram setShader(ShaderProgram p_366773_) {
++    public static IGraphicsShader setShader(ShaderProgram p_366773_) {
+         assertOnRenderThread();
+-        CompiledShaderProgram compiledshaderprogram = Minecraft.getInstance().getShaderManager().getProgram(p_366773_);
++        IGraphicsShader compiledshaderprogram = Minecraft.getInstance().getShaderManager().getProgram(p_366773_);
+         shader = compiledshaderprogram;
+         return compiledshaderprogram;
+     }
+ 
+-    public static void setShader(CompiledShaderProgram p_366790_) {
++    public static void setShader(IGraphicsShader p_366790_) {
+         assertOnRenderThread();
+         shader = p_366790_;
+     }
+@@ -646,7 +_,7 @@
+     }
+ 
+     @Nullable
+-    public static CompiledShaderProgram getShader() {
++    public static IGraphicsShader getShader() {
+         assertOnRenderThread();
+         return shader;
+     }
+@@ -821,5 +_,15 @@
+         interface IndexGenerator {
              void accept(it.unimi.dsi.fastutil.ints.IntConsumer p_157488_, int p_157489_);
          }
-     }
++    }
 +
 +    public static void backupGlState(net.neoforged.neoforge.client.GlStateBackup state) {
 +        assertOnRenderThread();
@@ -13,5 +84,5 @@
 +    public static void restoreGlState(net.neoforged.neoforge.client.GlStateBackup state) {
 +        assertOnRenderThread();
 +        GlStateManager._restoreGlState(state);
-+    }
+     }
  }

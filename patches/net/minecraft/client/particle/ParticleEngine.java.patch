@@ -1,5 +1,30 @@
 --- a/net/minecraft/client/particle/ParticleEngine.java
 +++ b/net/minecraft/client/particle/ParticleEngine.java
+@@ -11,8 +_,6 @@
+ import com.mojang.blaze3d.vertex.MeshData;
+ import com.mojang.blaze3d.vertex.Tesselator;
+ import com.mojang.logging.LogUtils;
+-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+ import java.io.IOException;
+ import java.io.Reader;
+@@ -46,7 +_,6 @@
+ import net.minecraft.core.particles.ParticleOptions;
+ import net.minecraft.core.particles.ParticleType;
+ import net.minecraft.core.particles.ParticleTypes;
+-import net.minecraft.core.particles.SimpleParticleType;
+ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.resources.FileToIdConverter;
+ import net.minecraft.resources.ResourceLocation;
+@@ -65,6 +_,7 @@
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.slf4j.Logger;
+ 
+ @OnlyIn(Dist.CLIENT)
 @@ -77,11 +_,11 @@
          ParticleRenderType.TERRAIN_SHEET, ParticleRenderType.PARTICLE_SHEET_OPAQUE, ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT, ParticleRenderType.CUSTOM
      );
@@ -104,7 +129,7 @@
          p_107339_.turnOffLightLayer();
      }
  
-+    public void renderParticlesWithType(final ParticleRenderType particleRenderType, final Iterable<Particle> toRender, @Nullable final net.minecraft.client.renderer.culling.Frustum clippingHelper, Camera p_107340_, float partialTickTime, java.util.function.Consumer<net.minecraft.client.renderer.CompiledShaderProgram> afterSetupAction, java.util.function.Consumer<net.minecraft.client.renderer.CompiledShaderProgram> postRenderAction) {
++    public void renderParticlesWithType(final ParticleRenderType particleRenderType, final Iterable<Particle> toRender, @Nullable final net.minecraft.client.renderer.culling.Frustum clippingHelper, Camera p_107340_, float partialTickTime, java.util.function.Consumer<IGraphicsShader> afterSetupAction, java.util.function.Consumer<IGraphicsShader> postRenderAction) {
 +        Tesselator tesselator = Tesselator.getInstance();
 +        BufferBuilder bufferbuilder = particleRenderType.begin(tesselator, this.textureManager);
 +

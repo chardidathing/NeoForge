@@ -1,5 +1,22 @@
 --- a/net/minecraft/client/renderer/LightTexture.java
 +++ b/net/minecraft/client/renderer/LightTexture.java
+@@ -18,6 +_,7 @@
+ import net.minecraft.world.level.dimension.DimensionType;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Vector3f;
+ 
+ @OnlyIn(Dist.CLIENT)
+@@ -103,7 +_,7 @@
+                 float f8 = clientlevel.dimensionType().ambientLight();
+                 boolean flag = clientlevel.effects().forceBrightLightmap();
+                 float f9 = this.minecraft.options.gamma().get().floatValue();
+-                CompiledShaderProgram compiledshaderprogram = Objects.requireNonNull(RenderSystem.setShader(CoreShaders.LIGHTMAP), "Lightmap shader not loaded");
++                IGraphicsShader compiledshaderprogram = Objects.requireNonNull(RenderSystem.setShader(CoreShaders.LIGHTMAP), "Lightmap shader not loaded");
+                 compiledshaderprogram.safeGetUniform("AmbientLightFactor").set(f8);
+                 compiledshaderprogram.safeGetUniform("SkyFactor").set(f1);
+                 compiledshaderprogram.safeGetUniform("BlockFactor").set(f7);
 @@ -141,7 +_,7 @@
      }
  

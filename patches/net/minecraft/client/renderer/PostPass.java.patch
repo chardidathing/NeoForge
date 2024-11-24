@@ -1,0 +1,59 @@
+--- a/net/minecraft/client/renderer/PostPass.java
++++ b/net/minecraft/client/renderer/PostPass.java
+@@ -19,17 +_,18 @@
+ import net.minecraft.resources.ResourceLocation;
+ import net.neoforged.api.distmarker.Dist;
+ import net.neoforged.api.distmarker.OnlyIn;
++import net.neoforged.neoforge.client.renderer.IGraphicsShader;
+ import org.joml.Matrix4f;
+ 
+ @OnlyIn(Dist.CLIENT)
+ public class PostPass {
+     private final String name;
+-    private final CompiledShaderProgram shader;
++    private final IGraphicsShader shader;
+     private final ResourceLocation outputTargetId;
+     private final List<PostChainConfig.Uniform> uniforms;
+     private final List<PostPass.Input> inputs = new ArrayList<>();
+ 
+-    public PostPass(String p_110062_, CompiledShaderProgram p_366578_, ResourceLocation p_361923_, List<PostChainConfig.Uniform> p_366745_) {
++    public PostPass(String p_110062_, IGraphicsShader p_366578_, ResourceLocation p_361923_, List<PostChainConfig.Uniform> p_366745_) {
+         this.name = p_110062_;
+         this.shader = p_366578_;
+         this.outputTargetId = p_361923_;
+@@ -107,7 +_,7 @@
+         }
+     }
+ 
+-    public CompiledShaderProgram getShader() {
++    public IGraphicsShader getShader() {
+         return this.shader;
+     }
+ 
+@@ -115,7 +_,7 @@
+     public interface Input {
+         void addToPass(FramePass p_362294_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_362030_);
+ 
+-        void bindTo(CompiledShaderProgram p_366559_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_362433_);
++        void bindTo(IGraphicsShader p_366559_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_362433_);
+ 
+         default void cleanup(Map<ResourceLocation, ResourceHandle<RenderTarget>> p_364998_) {
+         }
+@@ -138,7 +_,7 @@
+         }
+ 
+         @Override
+-        public void bindTo(CompiledShaderProgram p_366564_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_361239_) {
++        public void bindTo(IGraphicsShader p_366564_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_361239_) {
+             ResourceHandle<RenderTarget> resourcehandle = this.getHandle(p_361239_);
+             RenderTarget rendertarget = resourcehandle.get();
+             rendertarget.setFilterMode(this.bilinear ? 9729 : 9728);
+@@ -161,7 +_,7 @@
+         }
+ 
+         @Override
+-        public void bindTo(CompiledShaderProgram p_366520_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_363141_) {
++        public void bindTo(IGraphicsShader p_366520_, Map<ResourceLocation, ResourceHandle<RenderTarget>> p_363141_) {
+             p_366520_.bindSampler(this.samplerName + "Sampler", this.texture.getId());
+             p_366520_.safeGetUniform(this.samplerName + "Size").set((float)this.width, (float)this.height);
+         }
