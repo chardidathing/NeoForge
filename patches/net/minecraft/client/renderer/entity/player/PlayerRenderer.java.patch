@@ -47,7 +47,7 @@
      protected void renderNameTag(PlayerRenderState p_363185_, Component p_117809_, PoseStack p_117810_, MultiBufferSource p_117811_, int p_117812_) {
          p_117810_.pushPose();
          if (p_363185_.scoreText != null) {
-@@ -250,11 +_,29 @@
+@@ -251,11 +_,29 @@
              : null;
      }
  

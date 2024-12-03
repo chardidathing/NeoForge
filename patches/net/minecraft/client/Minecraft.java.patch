@@ -171,7 +171,7 @@
          }
  
          profilerfiller.push("blit");
-@@ -1254,9 +_,13 @@
+@@ -1257,9 +_,13 @@
          profilerfiller.pop();
          this.window.setErrorSection("Post render");
          this.frames++;
@@ -186,7 +186,7 @@
          this.deltaTracker.updatePauseState(this.pause);
          this.deltaTracker.updateFrozenState(!this.isLevelRunningNormally());
          long l = Util.getNanos();
-@@ -1348,10 +_,12 @@
+@@ -1351,10 +_,12 @@
          this.window.setGuiScale((double)i);
          if (this.screen != null) {
              this.screen.resize(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
@@ -199,7 +199,7 @@
          this.gameRenderer.resize(this.window.getWidth(), this.window.getHeight());
          this.mouseHandler.setIgnoreFirstMove();
      }
-@@ -1492,6 +_,7 @@
+@@ -1495,6 +_,7 @@
      }
  
      public void stop() {
@@ -207,7 +207,7 @@
          this.running = false;
      }
  
-@@ -1521,9 +_,17 @@
+@@ -1524,9 +_,17 @@
                  BlockHitResult blockhitresult = (BlockHitResult)this.hitResult;
                  BlockPos blockpos = blockhitresult.getBlockPos();
                  if (!this.level.getBlockState(blockpos).isAir()) {
@@ -227,7 +227,7 @@
                          this.player.swing(InteractionHand.MAIN_HAND);
                      }
                  }
-@@ -1551,6 +_,8 @@
+@@ -1554,6 +_,8 @@
                  return false;
              } else {
                  boolean flag = false;
@@ -236,7 +236,7 @@
                  switch (this.hitResult.getType()) {
                      case ENTITY:
                          this.gameMode.attack(this.player, ((EntityHitResult)this.hitResult).getEntity());
-@@ -1571,8 +_,10 @@
+@@ -1574,8 +_,10 @@
                          }
  
                          this.player.resetAttackStrengthTicker();
@@ -247,7 +247,7 @@
                  this.player.swing(InteractionHand.MAIN_HAND);
                  return flag;
              }
-@@ -1588,6 +_,11 @@
+@@ -1591,6 +_,11 @@
                  }
  
                  for (InteractionHand interactionhand : InteractionHand.values()) {
@@ -259,7 +259,7 @@
                      ItemStack itemstack = this.player.getItemInHand(interactionhand);
                      if (!itemstack.isItemEnabled(this.level.enabledFeatures())) {
                          return;
-@@ -1608,7 +_,7 @@
+@@ -1611,7 +_,7 @@
                                  }
  
                                  if (interactionresult instanceof InteractionResult.Success interactionresult$success2) {
@@ -268,7 +268,7 @@
                                          this.player.swing(interactionhand);
                                      }
  
-@@ -1620,7 +_,7 @@
+@@ -1623,7 +_,7 @@
                                  int i = itemstack.getCount();
                                  InteractionResult interactionresult1 = this.gameMode.useItemOn(this.player, interactionhand, blockhitresult);
                                  if (interactionresult1 instanceof InteractionResult.Success interactionresult$success) {
@@ -277,7 +277,7 @@
                                          this.player.swing(interactionhand);
                                          if (!itemstack.isEmpty() && (itemstack.getCount() != i || this.gameMode.hasInfiniteItems())) {
                                              this.gameRenderer.itemInHandRenderer.itemUsed(interactionhand);
-@@ -1636,6 +_,9 @@
+@@ -1639,6 +_,9 @@
                          }
                      }
  
@@ -287,7 +287,7 @@
                      if (!itemstack.isEmpty()
                          && this.gameMode.useItem(this.player, interactionhand) instanceof InteractionResult.Success interactionresult$success1) {
                          if (interactionresult$success1.swingSource() == InteractionResult.SwingSource.CLIENT) {
-@@ -1656,6 +_,8 @@
+@@ -1659,6 +_,8 @@
  
      public void tick() {
          this.clientTickCount++;
@@ -296,7 +296,7 @@
          if (this.level != null && !this.pause) {
              this.level.tickRateManager().tick();
          }
-@@ -1754,6 +_,7 @@
+@@ -1757,6 +_,7 @@
  
                  this.tutorial.tick();
  
@@ -304,7 +304,7 @@
                  try {
                      this.level.tick(() -> true);
                  } catch (Throwable throwable1) {
-@@ -1767,6 +_,7 @@
+@@ -1770,6 +_,7 @@
  
                      throw new ReportedException(crashreport1);
                  }
@@ -312,7 +312,7 @@
              }
  
              profilerfiller.popPush("animateTick");
-@@ -1791,6 +_,8 @@
+@@ -1794,6 +_,8 @@
          profilerfiller.popPush("keyboard");
          this.keyboardHandler.tick();
          profilerfiller.pop();
@@ -321,7 +321,7 @@
      }
  
      private boolean isLevelRunningNormally() {
-@@ -1990,7 +_,8 @@
+@@ -1993,7 +_,8 @@
      }
  
      public void setLevel(ClientLevel p_91157_, ReceivingLevelScreen.Reason p_341652_) {
@@ -331,7 +331,7 @@
          this.level = p_91157_;
          this.updateLevelInEngines(p_91157_);
          if (!this.isLocalServer) {
-@@ -2027,6 +_,7 @@
+@@ -2030,6 +_,7 @@
          IntegratedServer integratedserver = this.singleplayerServer;
          this.singleplayerServer = null;
          this.gameRenderer.resetData();
@@ -339,7 +339,7 @@
          this.gameMode = null;
          this.narrator.clear();
          this.clientLevelTeardownInProgress = true;
-@@ -2034,6 +_,7 @@
+@@ -2037,6 +_,7 @@
          try {
              this.updateScreenAndTick(p_320248_);
              if (this.level != null) {
@@ -347,7 +347,7 @@
                  if (integratedserver != null) {
                      ProfilerFiller profilerfiller = Profiler.get();
                      profilerfiller.push("waitForServer");
-@@ -2194,6 +_,7 @@
+@@ -2197,6 +_,7 @@
  
      private void pickBlock() {
          if (this.hitResult != null && this.hitResult.getType() != HitResult.Type.MISS) {

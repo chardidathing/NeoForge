@@ -12,7 +12,7 @@
                      this.send(ClientboundMoveVehiclePacket.fromEntity(entity));
                      return;
                  }
-@@ -466,6 +_,23 @@
+@@ -467,6 +_,23 @@
          }
      }
  
@@ -36,7 +36,7 @@
      private boolean noBlocksAround(Entity p_9794_) {
          return p_9794_.level()
              .getBlockStates(p_9794_.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0))
-@@ -645,7 +_,7 @@
+@@ -646,7 +_,7 @@
              if (serverlevel.isLoaded(blockpos)) {
                  BlockState blockstate = serverlevel.getBlockState(blockpos);
                  boolean flag = this.player.hasInfiniteMaterials() && p_382999_.includeData();
@@ -45,7 +45,7 @@
                  if (!itemstack.isEmpty()) {
                      if (flag) {
                          addBlockDataToItem(blockstate, serverlevel, blockpos, itemstack);
-@@ -989,7 +_,7 @@
+@@ -990,7 +_,7 @@
                                      && !flag1
                                      && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
                                      && !this.server.isFlightAllowed()
@@ -54,7 +54,7 @@
                                      && !this.player.hasEffect(MobEffects.LEVITATION)
                                      && !flag
                                      && !flag3
-@@ -1100,9 +_,10 @@
+@@ -1101,9 +_,10 @@
              switch (serverboundplayeractionpacket$action) {
                  case SWAP_ITEM_WITH_OFFHAND:
                      if (!this.player.isSpectator()) {
@@ -68,7 +68,7 @@
                          this.player.stopUsingItem();
                      }
  
-@@ -1130,7 +_,7 @@
+@@ -1131,7 +_,7 @@
                          .handleBlockBreakAction(
                              blockpos, serverboundplayeractionpacket$action, p_9889_.getDirection(), this.player.level().getMaxY(), p_9889_.getSequence()
                          );
@@ -77,7 +77,7 @@
                      return;
                  default:
                      throw new IllegalArgumentException("Invalid player action");
-@@ -1151,7 +_,7 @@
+@@ -1152,7 +_,7 @@
      public void handleUseItemOn(ServerboundUseItemOnPacket p_9930_) {
          PacketUtils.ensureRunningOnSameThread(p_9930_, this, this.player.serverLevel());
          if (this.player.hasClientLoaded()) {
@@ -86,7 +86,7 @@
              ServerLevel serverlevel = this.player.serverLevel();
              InteractionHand interactionhand = p_9930_.getHand();
              ItemStack itemstack = this.player.getItemInHand(interactionhand);
-@@ -1307,8 +_,9 @@
+@@ -1308,8 +_,9 @@
                  }
  
                  CompletableFuture<FilteredText> completablefuture = this.filterTextPacket(playerchatmessage.signedContent());
@@ -97,7 +97,7 @@
                      PlayerChatMessage playerchatmessage1 = playerchatmessage.withUnsignedContent(component).filter(p_300785_.mask());
                      this.broadcastChatMessage(playerchatmessage1);
                  });
-@@ -1637,7 +_,11 @@
+@@ -1638,7 +_,11 @@
  
                              @Override
                              public void onInteraction(InteractionHand p_143682_, Vec3 p_143683_) {
@@ -110,7 +110,7 @@
                              }
  
                              @Override
-@@ -1844,14 +_,16 @@
+@@ -1845,14 +_,16 @@
      @Override
      public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket p_9887_) {
          PacketUtils.ensureRunningOnSameThread(p_9887_, this, this.player.serverLevel());
@@ -128,7 +128,7 @@
          if (this.player.isModelPartShown(PlayerModelPart.HAT) != flag) {
              this.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_HAT, this.player));
          }
-@@ -1907,7 +_,7 @@
+@@ -1908,7 +_,7 @@
              this.connection
                  .setupInboundProtocol(
                      ConfigurationProtocols.SERVERBOUND,
@@ -137,7 +137,7 @@
                  );
          }
      }
-@@ -1942,6 +_,7 @@
+@@ -1943,6 +_,7 @@
  
      @Override
      public void handleCustomPayload(ServerboundCustomPayloadPacket p_333887_) {
