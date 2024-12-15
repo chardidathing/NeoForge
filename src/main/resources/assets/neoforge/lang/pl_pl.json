@@ -184,7 +184,7 @@
   "neoforge.configgui.attributeAdvancedTooltipDebugInfo.tooltip": "Zmień wartość tej zmiennej na \"true\", aby aktywować dodatkowe informacje o atrybutach przedmiotów, gdy włączona jest opcja \"advanced tooltips\" (F3+h).",
   "neoforge.configgui.forgeLightPipelineEnabled": "Lekki Rurociąg NeoForge",
   "neoforge.configgui.forgeLightPipelineEnabled.tooltip": "Włącz proces renderowania bloków NeoForge - poprawia oświetlenie modeli niestandardowych.",
-  "neoforge.configgui.fullBoundingBoxLadders": "Full Bounding Box Ladders",
+  "neoforge.configgui.fullBoundingBoxLadders": "Drabiny z pełnym obszarem trafienia",
   "neoforge.configgui.fullBoundingBoxLadders.tooltip": "Ustaw to na true, aby sprawdzić pole ograniczania kolizji całego ciała dla drabinek zamiast tylko bloku, w którym się znajdują. Powoduje zauważalne różnice w mechanice, więc domyślne zachowanie jest z vanilla. Domyślnie: false.",
   "neoforge.configgui.logLegacyTagWarnings": "Rejestruj starsze tagi",
   "neoforge.configgui.logLegacyTagWarnings.tooltip": "Opcja konfiguracyjna głównie dla programistów. Wyloguj modyfikowane tagi, które używają przestrzeni nazw \"forge\" podczas pracy na zintegrowanym serwerze. Domyślnie dla DEV_SHORT.",
