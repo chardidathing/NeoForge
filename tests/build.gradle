@@ -27,7 +27,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation neoforgeProject
+    implementation project(path: ':neoforge', configuration: 'runtimeElements')
     implementation testframeworkProject
 
     implementation "org.junit.jupiter:junit-jupiter-api:${project.jupiter_api_version}"

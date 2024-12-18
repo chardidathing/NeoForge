@@ -21,11 +21,6 @@ gradleutils.version {
     }
 }
 
-changelog {
-    from '20.4'
-    disableAutomaticPublicationRegistration()
-}
-
 // Print version, generally useful to know - also appears on CI
 System.out.println("NeoForge version ${gradleutils.version.toString()}")
 
